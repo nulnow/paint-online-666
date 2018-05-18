@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<link href="https://fonts.googleapis.com/css?family=Poiret+One|Raleway|Roboto" rel="stylesheet">
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			font-family: Tahoma, sans-serif;
+			/*font-family: 'Poiret One', cursive;*/
+			/* Чтобы за границы не выходили точки */
+			overflow: hidden;
+		}
+
+		body {
+			background-color: #212121;
+		}
+
+		.header {
+			
+/*			background: linear-gradient(#212121, #0D0D0D);
+
+			background-color: #161616;*/
+			/*background-color: #3D44DB;*/
+			background-color: #F50057;
+			color: white;
+			height: 10vh;
+			position: absolute;
+			width: 100%;
+			z-index: 999;
+		}
+
+		#canvas {
+			position: absolute;
+			top: 15vh;
+			left: 10vw;
+			width: 80vw;
+			height: 70vh;
+			background-color: white;
+		}
+
+		.point {
+			position: absolute;
+			height: 10px;
+			width: 10px;
+			background-color: #00FFBA;
+			border-radius: 100%;
+
+			/* Чтобы не налезали на навбар */
+			/*z-index: -1;*/
+		}
+
+		#palete {
+			margin-left: 5px;
+			margin-top: 5px;
+			top: 10vh;
+			position: absolute;
+			float: left;
+			width: 6vw;
+			min-width: 80px;
+			height: 90vh;
+			min-height: 350px;
+			z-index: 999;
+		}
+
+		#savepalete {
+			margin-left: 5px;
+			margin-top: 5px;
+			top: 10vh;
+			position: absolute;
+			right: 0px;
+			width: 6vw;
+			min-width: 80px;
+			height: 80vh;
+			min-height: 350px;
+			z-index: 999;
+		}
+
+		.color {
+			border-radius: 100%;
+			position: relative;
+			left: 16px;
+			top: 2vh;
+			width: 7vh;
+			height: 7vh;
+			background-color: gray;
+			margin-bottom: 10px;
+			display: block;
+		}
+
+		.save {
+			border-radius: 100%;
+			position: relative;
+			left: 16px;
+			top: 2vh;
+			width: 7vh;
+			height: 7vh;
+			background-color: gray;
+			margin-bottom: 10px;
+			display: block;
+			text-align: center;
+			color: white;
+			font-size: 35px;
+			font-family: 'Poiret One', cursive;
+		}
+
+		.activeSave {
+			background-color: white;
+			color: black;
+		}
+
+		.button {
+			border-radius: 7px;
+			height: 4vh;
+			position: relative;
+			left: 16px;
+			color: black;
+			top: 2vh;
+			font-family: Tahoma;
+			width: 7vh;
+			background-color: white;
+			margin-bottom: 10px;
+			display: block;
+			text-align: center;
+		}
+
+		.label {
+			color: white;
+			font-size: 20px;
+			text-align: center;
+			font-family: 'Poiret One', cursive;
+		}
+
+		.radiousStd {
+			border-radius: 5px;
+			border-color: #181818;
+			border-style: solid;
+			border-width: 1px;
+		}
+
+		.shadowStd {
+			transition-duration: 0.2s;
+			box-shadow: 2px 2px 20px rgba(0,0,0,0.3);
+		}
+
+		.shadowGUI {
+			transition-duration: 0.2s;
+			box-shadow: 4px 4px 20px rgba(0,0,0,1);
+		}
+
+		/* При наведении на кнопку цвета или кнопку управления тень становится больше */
+		/*, #palete:hover*/
+		.color:hover, .button:hover, .save:hover {
+			cursor: pointer;
+			box-shadow: 1px 1px 10px rgba(0,0,0,0.7);
+		}
+
+		#canvas:hover {
+			cursor: crosshair;
+		}
+
+		h1 {
+			text-align: left;
+			font-family: 'Poiret One', cursive;
+			font-weight: 700;
+			font-size: 5vh;
+			position: relative;
+			top: 2vh;
+			left: 30vh;
+		}
+
+		#undo {
+			font-size: 35px;
+			float: right;
+			top: -4.5vh;
+			left: -2vw;
+			height: 7vh;
+			width: 7vh;
+			text-align: center;
+		}
+
+		#getImg{
+			position: absolute;
+			font-size: 18px;
+			height: 7vh;
+			width: 21vh;
+			margin-right: 10px;
+			text-align: center;
+		}
+
+		/* Каждой кнопке свой цвет */
+		#red {background-color: red;}
+		#blue {background-color: blue;}
+		#green {background-color: green;}
+		#yellow {background-color: yellow;}
+		#white {background-color: white;}
+		#gray {background-color: gray;}
+		#black {background-color: black;}
+
+		#brushSize {
+			top: 2vh;
+			width: 7vh;
+			/*min-width: 40px;*/
+		}
+
+		#clear {
+			padding-top: 3px;
+			background-color: white;
+		}
+
+		#clearAll {
+			height: 42px;
+		}
+
+		#copiright {
+			position: absolute;
+			color: white;
+			bottom: 4px;
+			right: 4px;
+			font-family: Raleway, Tahoma, sans-serif;
+		}
+
+		a {
+			color: white;
+			font-family: 'Poiret One', cursive;
+		}
+
+		.absoluteLeft {
+			left: 0px;
+		}
+
+	</style>
+	
+	<title>Paint Online</title>
+	<!-- Шрифты Fonts -->
+	<link href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAN1wAADdcBQiibeAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAFmSURBVFiF7dbNSlVRFADg76o0FMSUJuIgfAvxERTEMrVeQ4dmqUgJ2qDQR5Bm0aCJ1BMo2gM4zJ9+iAj/bt0GZ8k5yL3Q4OxjxF1w2GfttTkfm33Ye9OOdqSJEWzjF86whaGq8ClcooFTXMT7F9xNjT9APcBldKIbb6LvdUp8Uj7zY/QXat2ypfiJWgr8fgE/jHYffVG/hR+y5ehIiT/BbexFvodevIj8Q9n4vQL+tNDfh4/RfxTtJYbLxCcK+GKTej9Ool7HTJn4I/nfPttizFrULzD+3+APC/hck3qtKnz+JvHHVeMzf4GvV4EvtMA3UuHTN4mP4jw+/rLFmGfyTWaqTJx8+7w6xyeqxAfi41/xPt5/Yyzqz1PiAmrgnWydVyL/jFepcbIjtYGlyGuy+93VktRlN59k8TagTazKzvDvVeHwST7b4vMtBd51LR/AHdm1ahc7hfagbLxZ9GCwCqgd/0z8Adl9lMJvcQsdAAAAAElFTkSuQmCC" rel="icon" type="image/x-icon">
+
+
+
+</head>
+<body>
+
+
+<!-- Навбарчик -->
+<div class="header shadowGUI">
+	<h1>Paint Online 666</h1>
+	<div id="undo" class="button">⤺</div>
+	<form action="/createImg" method="POST" target="_blank" onsubmit="" id="getImgForm">
+		<input type="submit" id="getImg" class="button" value="Save as a img" hidden="true">
+		<input type="text" name="canvasBody" hidden=true style="float: left;" value="" id="canvasBodyValue">
+	</form>
+</div>
+
+
+<!-- Сам холст -->
+<div id="canvas" class="radiousStd shadowGUI"></div>
+
+
+<!-- Палитра и набор инструментов -->
+<!-- radiousStd shadowGUI -->
+<div id="palete" class="">
+
+	<!-- Тип цвета -->
+	<div class="label">Palete</div>
+	<div class="color shadowGUI" id="red"></div>
+	<div class="color shadowGUI" id="blue"></div>
+	<div class="color shadowGUI" id="green"></div>
+	<div class="color shadowGUI" id="yellow"></div>
+	<div class="color shadowGUI" id="white"></div>
+	<div class="color shadowGUI" id="gray"></div>
+	<div class="color shadowGUI" id="black"></div>
+
+	<input type="color" class="color shadowStd" id="colorPicker">
+	
+	<!-- Задает размер кисти -->
+	<input type="range" min="1" max="201" step="1" value="25" class="button shadowStd" id="brushSize">
+
+	<!-- Очищает холст -->
+	<div class="button shadowGUI" id="clear">Clear</div>
+</div>
+
+<!-- Сохранения -->
+<div id="savepalete" class="">
+
+	<div class="label">Pictures</div>
+	<div class="save shadowGUI" id="save1">1</div>
+	<div class="save shadowGUI" id="save2">2</div>
+	<div class="save shadowGUI" id="save3">3</div>
+	<div class="save shadowGUI" id="save4">4</div>
+	<div class="save shadowGUI" id="save5">5</div>
+	<div class="save shadowGUI" id="save6">6</div>
+	<div class="save shadowGUI" id="save7">7</div>
+	<div class="button shadowGUI" id="clearAll">Clear all</div>
+
+</div>
+
+<!-- <p id="mouseXY"></p> -->
+<p id="copiright"><a target="_blank" href="http://t.me/lozow">Made by Me ( ͡⚆ ͜ʖ ͡⚆)</a></p>
+
+<script>
+
+	// Кисточка для рисования
+	// Ставит круглые точки разных цветов и размеров на объекте холст
+	class Brush {
+		constructor (color, size) {
+			this.color = color;
+			this.size = size;
+		}
+
+		putPoint (canvas, x, y, inLine) {
+
+			var point = document.createElement('div');
+			point.classList.add('point');
+			point.style.width = this.size + 'px';
+			point.style.height = this.size + 'px';
+			point.style.backgroundColor = this.color;
+
+			// Магия, не трогать
+			point.style.marginTop = (y - (window.innerHeight)/10 - (window.innerHeight)/20 - this.size / 2) +'px' ;
+			point.style.marginLeft = (x - ((window.innerWidth)/10) - this.size / 2) +'px' ;
+			
+			point.classList.add('line');
+
+			point.classList.add('ln' + canvas.lines );
+
+			canvas.body.appendChild(point);
+		}
+	}
+
+	// Холст (Просто для красоты класс)
+	class Canvas {
+		constructor (elem) {
+			this.body = elem;
+			this.lines = 0;
+		}
+
+		clear() {
+			this.lines = 0;
+			this.body.innerHTML = '';
+		}
+	}
+
+	// Создаем объекты для холста и кисточки
+	var currentPicture;
+	if (localStorage['activePage']) {currentPicture = localStorage['activePage']} else currentPicture = 1;
+	var canvas = new Canvas(document.getElementById('canvas'));
+	if (localStorage['canvasLines']) canvas.lines = -(-localStorage['canvasLines']);
+	if (localStorage['picture'+currentPicture]) {
+		canvas.body.innerHTML = localStorage['picture'+currentPicture];
+	}
+	var brush = new Brush('red', document.getElementById('brushSize').value);
+
+	// При изменении ползунка размера кисти, поменять значение размера кисти на новое
+	document.getElementById('brushSize').addEventListener('change', (e)=>{
+		// document.getElementById('mouseXY').innerText = 'size '+ brush.size + ' color: ' + brush.color;
+		brush.size = document.getElementById('brushSize').value;
+	});
+
+	// Если при проведении мышкой по холсту зажата левая кнопка - поставить точку там, где сейчас курсор
+	var isMouseDown = false;
+	var inLine = false;
+	var afterMove = false;
+	canvas.body.addEventListener('mousedown', (e)=>{inLine=true;isMouseDown = true;});
+	canvas.body.addEventListener('mouseup', (e)=>{
+		inLine=false;
+		canvas.lines++;
+		localStorage['canvasLines'] = canvas.lines;
+		isMouseDown = false;
+		// canvas.body.lastChild.classList.remove('ln' + (canvas.lines-1) );
+	});
+	canvas.body.addEventListener('mousemove', 
+		function (event) {
+			if (isMouseDown) {
+				brush.putPoint(canvas, event.clientX, event.clientY, inLine);
+				localStorage['picture'+currentPicture] = canvas.body.innerHTML + '';
+				afterMove = true;
+			}
+		}
+	);
+
+	canvas.body.addEventListener('click', (event)=>{
+		if (isMouseDown) {
+			canvas.lines--;
+			brush.putPoint(canvas, event.clientX, event.clientY, true);
+			canvas.lines++;
+			if (afterMove) {
+				afterMove = false;
+				canvas.body.lastChild.classList.remove('ln'+(canvas.lines) );
+				canvas.body.lastChild.classList.add('ln'+(canvas.lines-1) );
+			}
+			localStorage['picture'+currentPicture] = canvas.body.innerHTML + '';
+		}
+	});
+	canvas.body.addEventListener('click', (event)=>{
+		canvas.lines--;
+		brush.putPoint(canvas, event.clientX, event.clientY, true);
+		canvas.lines++;
+	});
+
+
+	// Пройтись по кнопкам цветов
+	for (var colorButtons = document.getElementsByClassName('color'), i = 0; i < colorButtons.length; i++) {
+
+		// При клике на кнопку установить цвет кисточки равным id кнопки
+		colorButtons[i].addEventListener('click', (e)=> {
+			brush.color = e.target.id;
+		});
+	}
+
+	// При выборе цвета установить новый цвет кисти
+	document.getElementById('colorPicker').addEventListener('input', setColor);
+	document.getElementById('colorPicker').addEventListener('click', setColor);
+	function setColor (event) {
+		brush.color = document.getElementById('colorPicker').value;
+	}
+
+	// Нажал на clear - очистил холст
+	document.getElementById('clear').addEventListener('click', clear);
+	function clear (event) {
+		canvas.clear();
+		localStorage['picture'+currentPicture] = '';
+	}
+
+
+	// Пройтись по кнопкам картин
+	for (var saves = document.getElementsByClassName('save'), i = 0; i < saves.length; i++) {
+		saves[currentPicture-1].classList.add('activeSave');
+		// При клике на кнопку установить новую текущую картину
+		saves[i].addEventListener('click', (e)=> {
+			document.getElementsByClassName('activeSave')[0].classList.remove('activeSave');
+			e.target.classList.add('activeSave');
+			currentPicture = e.target.id[e.target.id.length-1];
+			if (localStorage['picture'+currentPicture]) canvas.body.innerHTML = localStorage['picture'+currentPicture]; else canvas.body.innerHTML = '';
+			localStorage['activePage'] = currentPicture;
+		});
+	}
+
+	document.getElementById('clearAll').addEventListener('click', clearAll);
+	function clearAll (event) {
+		for (var i = 1; i < 8; i++) {
+			localStorage['picture'+i] = '';
+		}
+		canvas.clear();
+	}
+
+	document.getElementById('undo').addEventListener('click', undo);
+	function undo (event) {
+		var lines = document.getElementsByClassName('line');
+		lines.filter = [].filter;
+		var lastLine = lines.filter((elem)=>{
+			if (elem.classList.contains('ln' + (canvas.lines-1) )) {
+				return true;
+			}
+		});
+		for (var i = lastLine.length-1; i >= 0; i--) {
+			lastLine[i].parentNode.removeChild(lastLine[i]);
+		}
+		// var i = 0;
+		// while (lastLine.length != 0) {
+		// 	lastLine[i].parentNode.removeChild(lastLine[i]);
+		// 	localStorage['picture'+currentPicture] = canvas.body.innerHTML + '';
+		// }
+		canvas.lines-=1;
+		localStorage['picture'+currentPicture] = canvas.body.innerHTML + '';
+		localStorage['canvasLines'] = canvas.lines;
+	}
+
+	// document.getElementById('getImg').addEventListener('click', renderImage);
+	// function renderImage() {
+	// 	var ajax = new XMLHttpRequest();
+	// 	ajax.onreadystatechange = function() {
+	// 		if (ajax.readyState == 4 && ajax.status == 200) {
+	// 			var response = ajax.responseText;
+	// 		}
+	// 	};
+	// 	ajax.open('POST', '/createImg', true);
+	// 	ajax.setRequestHeader("Content-type", "application/json");
+	// 	ajax.send(JSON.stringify({"canvasBody":localStorage['picture'+currentPicture]}));
+	// }
+
+	document.getElementById('getImg').addEventListener('mousedown', ()=>{
+		var canvasBody = localStorage['picture'+currentPicture];
+		document.getElementById('canvasBodyValue').value = canvasBody;
+	});
+
+
+</script>
+
+</body>
+</html>
